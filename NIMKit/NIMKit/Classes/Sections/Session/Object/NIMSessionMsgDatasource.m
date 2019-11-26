@@ -18,8 +18,10 @@
 @property (nonatomic,strong) id<NIMKitMessageProvider> dataProvider;
 
 @property (nonatomic,strong) NSMutableDictionary *msgIdDict;
-
-@property (nonatomic,assign) BOOL messageModelShowSelect;
+// llt - start
+// 上一次记录时间的model
+@property (nonatomic, strong) NIMMessageModel *timeRecordModel;
+// llt - end
 
 @end
 
@@ -292,30 +294,9 @@
     }
 }
 
-- (void)refreshMessageModelShowSelect:(BOOL)isShow {
-    _messageModelShowSelect = isShow;
-
-    for (id item in self.items)
-    {
-        if ([item isKindOfClass:[NIMMessageModel class]])
-        {
-            NIMMessageModel *model = (NIMMessageModel *)item;
-            model.shouldShowSelect = isShow;
-            model.selected = NO;
-            if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
-                model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
-            }
-        }
-    }
-}
-
 #pragma mark - private methods
 - (void)insertMessage:(NIMMessage *)message{
     NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
-    model.shouldShowSelect = _messageModelShowSelect;
-    if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
-        model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
-    }
     if ([self modelIsExist:model]) {
         return;
     }
@@ -339,6 +320,11 @@
 
 
 - (NSArray *)insertMessageModel:(NIMMessageModel *)model index:(NSInteger)index{
+    // llt - start
+    if (model.message.messageType == NIMMessageTypeNotification) {
+        return nil;
+    }
+    // llt - end
     NSMutableArray *inserts = [[NSMutableArray alloc] init];
     if (![self.dataProvider respondsToSelector:@selector(needTimetag)] || self.dataProvider.needTimetag)
     {
@@ -351,6 +337,9 @@
         }
     }
     [self.items insertObject:model atIndex:index];
+    // llt - start
+    self.timeRecordModel = model;
+    // llt - end
     [self.msgIdDict setObject:model forKey:model.message.messageId];
     [inserts addObject:@(index)];
     return inserts;
@@ -376,10 +365,6 @@
     NSMutableArray *array = [[NSMutableArray alloc] init];
     for (NIMMessage *message in messages) {
         NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
-        model.shouldShowSelect = _messageModelShowSelect;
-        if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
-            model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
-        }
         [array addObject:model];
     }
     return array;
@@ -439,7 +424,10 @@
 
 - (NSTimeInterval)lastTimeInterval
 {
-    NIMMessageModel *model = self.items.lastObject;
+    // llt -
+//    NIMMessageModel *model = self.items.lastObject;
+    NIMMessageModel *model = self.timeRecordModel;
+     // llt - end
     return model.messageTime;
 }
 

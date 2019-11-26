@@ -82,7 +82,7 @@
         leftBarView.translatesAutoresizingMaskIntoConstraints = NO;
     }
     self.navigationItem.leftBarButtonItems = @[leftItem];
-    self.navigationItem.leftItemsSupplementBackButton = YES;
+    self.navigationItem.leftItemsSupplementBackButton = NO;
 }
 
 - (void)setupTableView
@@ -151,7 +151,8 @@
 
 - (void)viewDidLayoutSubviews
 {
-    [self changeLeftBarBadge:self.conversationManager.allUnreadCount];
+    // 改变了回退按钮，所以这个方法要注释掉
+//    [self changeLeftBarBadge:self.conversationManager.allUnreadCount];
     [self.interactor resetLayout];
 }
 
@@ -225,15 +226,6 @@
 }
 
 - (NSString *)sessionSubTitle{return @"";};
-
-#pragma mark - 状态操作
-- (NIMKitSessionState)sessionState {
-    return [self.interactor sessionState];
-}
-
-- (void)setSessionState:(NIMKitSessionState)state {
-    [self.interactor setSessionState:state];
-}
 
 #pragma mark - NIMChatManagerDelegate
 //开始发送
@@ -646,6 +638,7 @@
 {
     [UIMenuController sharedMenuController].menuItems = nil;
 }
+
 
 #pragma mark - 操作接口
 - (void)uiAddMessages:(NSArray *)messages

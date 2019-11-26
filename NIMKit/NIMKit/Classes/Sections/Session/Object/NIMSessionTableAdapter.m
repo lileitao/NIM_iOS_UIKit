@@ -45,8 +45,15 @@
     if ([model isKindOfClass:[NIMMessageModel class]]) {
         cell = [self.cellFactory cellInTable:tableView
                                    forMessageMode:model];
+        cell.hidden = NO;
         [(NIMMessageCell *)cell setDelegate:self.delegate];
         [(NIMMessageCell *)cell refreshData:model];
+        
+        // llt如果是通知类消息 就隐藏；
+        NIMMessageModel *msgModel = model;
+        if (msgModel.message.messageType == NIMMessageTypeNotification) {
+            cell.hidden = YES;
+        }
     }
     else if ([model isKindOfClass:[NIMTimestampModel class]])
     {
@@ -83,6 +90,10 @@
         UIEdgeInsets bubbleViewInsets  = model.bubbleViewInsets;
         cellHeight = size.height + contentViewInsets.top + contentViewInsets.bottom + bubbleViewInsets.top + bubbleViewInsets.bottom;
         cellHeight = cellHeight > (model.avatarSize.height + avatarMarginY) ? cellHeight : model.avatarSize.height + avatarMarginY;
+        // llt如果是通知类消息 就隐藏；
+        if (model.message.messageType == NIMMessageTypeNotification) {
+            cellHeight = 0;
+        }
     }
     else if ([modelInArray isKindOfClass:[NIMTimestampModel class]])
     {

@@ -35,6 +35,7 @@
         [_voiceButton setImage:[UIImage nim_imageInKit:@"icon_toolview_voice_normal"] forState:UIControlStateNormal];
         [_voiceButton setImage:[UIImage nim_imageInKit:@"icon_toolview_voice_pressed"] forState:UIControlStateHighlighted];
         [_voiceButton sizeToFit];
+        _voiceButton.hidden = YES; // llt修改
         
         
         _emoticonBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -240,7 +241,7 @@
         [self.inputTextView setHidden:NO];
         [self.inputTextBkgImage setHidden:NO];
         [self updateVoiceBtnImages:YES];
-        [self updateEmotAndTextBtnImages:YES];
+        [self updateEmotAndTextBtnImages:NO];
     }
 }
 

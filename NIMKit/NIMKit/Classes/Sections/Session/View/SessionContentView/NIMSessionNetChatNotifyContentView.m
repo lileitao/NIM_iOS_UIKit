@@ -20,7 +20,6 @@
     if (self = [super initSessionMessageContentView]) {
         _textLabel = [[M80AttributedLabel alloc] initWithFrame:CGRectZero];
         _textLabel.numberOfLines = 0;
-        _textLabel.autoDetectLinks = NO;
         _textLabel.lineBreakMode = NSLineBreakByWordWrapping;
         _textLabel.backgroundColor = [UIColor clearColor];
         [self addSubview:_textLabel];

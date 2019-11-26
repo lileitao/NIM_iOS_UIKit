@@ -15,9 +15,14 @@
 - (instancetype)init{
     self = [super init];
     if (self) {
-        _height = 40.f;
+        
     }
     return self;
 }
+
+- (CGFloat)height{
+    return 40.f;
+}
+
 
 @end

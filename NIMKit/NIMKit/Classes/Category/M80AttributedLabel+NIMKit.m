@@ -23,19 +23,17 @@
             NIMInputEmoticon *emoticon = [[NIMInputEmoticonManager sharedManager] emoticonByTag:token.text];
             UIImage *image = nil; ;
 
-            if(emoticon.filename &&
-               emoticon.filename.length>0 &&
-                (image = [UIImage nim_emoticonInKit:emoticon.filename])!= nil) {
+            if(emoticon.unicode && emoticon.unicode.length>0) {
+                [self appendText:emoticon.unicode];
+            }else if(emoticon.filename &&
+                     emoticon.filename.length>0 &&
+                     (image = [UIImage nim_emoticonInKit:emoticon.filename])!= nil) {
                 if (image)
                 {
-                    CGSize maxSize = CGSizeMake(self.font.lineHeight, self.font.lineHeight);
                     [self appendImage:image
-                              maxSize:maxSize];
+                              maxSize:CGSizeMake(18, 18)];
                 }
-            } else if (emoticon.unicode && emoticon.unicode.length>0){
-                [self appendText:emoticon.unicode];
-            }
-            else {
+            }else {
                 [self appendText:@"[?]"];
             }
         }

@@ -8,7 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
-#import "NIMKitLocationPoint.h"
+
+@class NIMKitLocationPoint;
 
 @protocol NIMLocationViewControllerDelegate <NSObject>
 
@@ -17,8 +18,6 @@
 @end
 
 @interface NIMLocationViewController : UIViewController<MKMapViewDelegate>
-
-@property(nonatomic,assign) BOOL disableAutoExit;
 
 @property(nonatomic,strong) MKMapView *mapView;
 

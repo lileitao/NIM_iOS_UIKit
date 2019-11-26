@@ -111,10 +111,6 @@
     [self.dataSource cleanCache];
 }
 
-- (void)refreshMessageModelShowSelect:(BOOL)isShow {
-    [self.dataSource refreshMessageModelShowSelect:isShow];
-}
-
 - (void)resetMessages:(void(^)(NSError *error))handler{
     [self.dataSource resetMessages:handler];
 }

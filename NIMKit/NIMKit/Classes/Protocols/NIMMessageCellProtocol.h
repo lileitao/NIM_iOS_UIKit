@@ -37,6 +37,5 @@
 
 - (void)onRetryMessage:(NIMMessage *)message;
 
-- (void)onSelectedMessage:(BOOL)selected message:(NIMMessage *)message;
 
 @end

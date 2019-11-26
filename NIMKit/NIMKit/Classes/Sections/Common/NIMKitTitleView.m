@@ -17,7 +17,7 @@
     if (self)
     {
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-        _titleLabel.font = [UIFont boldSystemFontOfSize:15.f];
+        _titleLabel.font = [UIFont boldSystemFontOfSize:17.0f];
         _titleLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
         _titleLabel.textAlignment = NSTextAlignmentCenter;
 

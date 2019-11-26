@@ -11,14 +11,11 @@
 
 @interface NIMTimestampModel : NSObject
 
+- (CGFloat)height;
+
 /**
  *  时间戳
  */
 @property (nonatomic, assign) NSTimeInterval messageTime;
-
-/**
-*  Cell 高度
-*/
-@property (nonatomic, assign) CGFloat height;
 
 @end

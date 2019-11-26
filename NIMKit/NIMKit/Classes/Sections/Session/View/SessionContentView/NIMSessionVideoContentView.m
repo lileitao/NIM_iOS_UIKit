@@ -12,8 +12,6 @@
 #import "UIImage+NIMKit.h"
 #import "NIMLoadProgressView.h"
 
-#import <AVFoundation/AVFoundation.h>
-
 @interface NIMSessionVideoContentView()
 
 @property (nonatomic,strong,readwrite) UIImageView * imageView;
@@ -51,11 +49,6 @@
     [super refresh:data];
     NIMVideoObject * videoObject = (NIMVideoObject*)self.model.message.messageObject;
     UIImage * image              = [UIImage imageWithContentsOfFile:videoObject.coverPath];
-    if (!image && videoObject.url)
-    {
-        NSString *videoUrl = videoObject.coverUrl;
-        image = [self thumbnailImageForVideo:[NSURL URLWithString:videoUrl] atTime:0];
-    }
     self.imageView.image         = image;
     _progressView.hidden         = (self.model.message.deliveryState != NIMMessageDeliveryStateDelivering);
     if (!_progressView.hidden) {
@@ -103,31 +96,5 @@
 }
 
 
-- (UIImage *)thumbnailImageForVideo:(NSURL *)videoURL atTime:(NSTimeInterval)time
-{
-    
-    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
-    if (!asset)
-    {
-        return nil;
-    }
-    
-    AVAssetImageGenerator *generator =[[AVAssetImageGenerator alloc] initWithAsset:asset];
-    generator.appliesPreferredTrackTransform = YES;
-    generator.apertureMode = AVAssetImageGeneratorApertureModeEncodedPixels;
-    
-    CGImageRef thumbnailImageRef = NULL;
-    CFTimeInterval thumbnailImageTime = time;
-    NSError *thumbnailImageGenerationError = nil;
-    thumbnailImageRef = [generator copyCGImageAtTime:CMTimeMake(thumbnailImageTime, 60)
-                                          actualTime:NULL
-                                               error:&thumbnailImageGenerationError];
-    
-    UIImage *thumbnailImage = thumbnailImageRef ? [[UIImage alloc] initWithCGImage:thumbnailImageRef] : nil;
-    thumbnailImage = [thumbnailImage nim_cropedImageWithSize:CGSizeMake(600, 600)];
-    
-    CGImageRelease(thumbnailImageRef);
-    return thumbnailImage;
-}
 
 @end

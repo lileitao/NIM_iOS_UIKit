@@ -54,8 +54,6 @@
 
 - (void)cleanCache;
 
-- (void)refreshMessageModelShowSelect:(BOOL)isShow;
-
 @end
 
 

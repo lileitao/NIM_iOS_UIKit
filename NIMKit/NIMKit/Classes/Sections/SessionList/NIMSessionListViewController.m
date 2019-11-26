@@ -11,7 +11,6 @@
 #import "NIMSessionListCell.h"
 #import "UIView+NIM.h"
 #import "NIMAvatarImageView.h"
-#import "NIMMessageUtil.h"
 #import "NIMKitUtil.h"
 #import "NIMKit.h"
 
@@ -44,7 +43,16 @@
     self.tableView.dataSource       = self;
     self.tableView.tableFooterView  = [[UIView alloc] init];
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    
+    _recentSessions = [self getRecentSessions];
+    if (!self.recentSessions.count)
+    {
+        _recentSessions = [NSMutableArray array];
+    }
+    else
+    {
+        _recentSessions = [self customSortRecents:_recentSessions];
+    }
+
     [[NIMSDK sharedSDK].conversationManager addDelegate:self];
     [[NIMSDK sharedSDK].loginManager addDelegate:self];
     
@@ -56,20 +64,6 @@
     
     extern NSString *const NIMKitUserInfoHasUpdatedNotification;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onUserInfoHasUpdatedNotification:) name:NIMKitUserInfoHasUpdatedNotification object:nil];
-    
-    [self setupSessions];
-}
-
-- (void)setupSessions {
-    _recentSessions = [self getRecentSessions];
-    if (!self.recentSessions.count)
-    {
-        _recentSessions = [NSMutableArray array];
-    }
-    else
-    {
-        _recentSessions = [self customSortRecents:_recentSessions];
-    }
 }
 
 - (NSMutableArray *)getRecentSessions {
@@ -129,11 +123,6 @@
 
 
 #pragma mark - NIMConversationManagerDelegate
-- (void)didLoadAllRecentSessionCompletion {
-    [self setupSessions];
-    [self refresh];
-}
-
 - (void)didAddRecentSession:(NIMRecentSession *)recentSession
            totalUnreadCount:(NSInteger)totalUnreadCount{
     [self.recentSessions addObject:recentSession];
@@ -141,6 +130,7 @@
     _recentSessions = [self customSortRecents:_recentSessions];
     [self refresh];
 }
+
 
 - (void)didUpdateRecentSession:(NIMRecentSession *)recentSession
               totalUnreadCount:(NSInteger)totalUnreadCount{
@@ -291,7 +281,35 @@
 
 #pragma mark - Private
 - (NSString *)messageContent:(NIMMessage*)lastMessage{
-    NSString *text = [NIMMessageUtil messageContent:lastMessage];
+    NSString *text = @"";
+    switch (lastMessage.messageType) {
+        case NIMMessageTypeText:
+            text = lastMessage.text;
+            break;
+        case NIMMessageTypeAudio:
+            text = @"[语音]";
+            break;
+        case NIMMessageTypeImage:
+            text = @"[图片]";
+            break;
+        case NIMMessageTypeVideo:
+            text = @"[视频]";
+            break;
+        case NIMMessageTypeLocation:
+            text = @"[位置]";
+            break;
+        case NIMMessageTypeNotification:{
+            return [self notificationMessageContent:lastMessage];
+        }
+        case NIMMessageTypeFile:
+            text = @"[文件]";
+            break;
+        case NIMMessageTypeTip:
+            text = lastMessage.text;
+            break;
+        default:
+            text = @"[未知消息]";
+    }
     if (lastMessage.session.sessionType == NIMSessionTypeP2P || lastMessage.messageType == NIMMessageTypeTip)
     {
         return text;
@@ -302,6 +320,30 @@
         NSString *nickName = [NIMKitUtil showNick:from inSession:lastMessage.session];
         return nickName.length ? [nickName stringByAppendingFormat:@" : %@",text] : @"";
     }
+}
+
+- (NSString *)notificationMessageContent:(NIMMessage *)lastMessage{
+    NIMNotificationObject *object = lastMessage.messageObject;
+    if (object.notificationType == NIMNotificationTypeNetCall) {
+        NIMNetCallNotificationContent *content = (NIMNetCallNotificationContent *)object.content;
+        if (content.callType == NIMNetCallTypeAudio) {
+            return @"[网络通话]";
+        }
+        return @"[视频聊天]";
+    }
+    if (object.notificationType == NIMNotificationTypeTeam) {
+        NIMTeam *team = [[NIMSDK sharedSDK].teamManager teamById:lastMessage.session.sessionId];
+        if (team.type == NIMTeamTypeNormal) {
+            return @"[讨论组信息更新]";
+        }else{
+            return @"[群信息更新]";
+        }
+    }
+    
+    if (object.notificationType == NIMNotificationTypeSuperTeam) {
+        return @"[超大群信息更新]";
+    }
+    return @"[未知消息]";
 }
 
 #pragma mark - Notification

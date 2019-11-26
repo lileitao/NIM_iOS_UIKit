@@ -104,9 +104,7 @@
     if ([self.delegate respondsToSelector:@selector(onSendLocation:)]) {
         [self.delegate onSendLocation:self.locationPoint];
     }
-    if (!_disableAutoExit) {
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-    }
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {

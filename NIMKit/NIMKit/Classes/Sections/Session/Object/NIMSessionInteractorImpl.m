@@ -40,8 +40,6 @@ dispatch_queue_t NTESMessageDataPrepareQueue()
 
 @property (nonatomic,strong) NSMutableArray *pendingAudioMessages;
 
-@property (nonatomic,assign) NIMKitSessionState sessionState;
-
 @end
 
 @implementation NIMSessionInteractorImpl
@@ -98,10 +96,6 @@ dispatch_queue_t NTESMessageDataPrepareQueue()
     NSMutableArray *models = [[NSMutableArray alloc] init];
     for (NIMMessage *message in messages) {
         NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
-        model.shouldShowSelect = (_sessionState == NIMKitSessionStateSelect);
-        if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
-            model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
-        }
         [models addObject:model];
     }
     NIMSessionMessageOperateResult *result = [self.dataSource insertMessageModels:models];
@@ -117,10 +111,6 @@ dispatch_queue_t NTESMessageDataPrepareQueue()
             continue;
         }        
         NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
-        model.shouldShowSelect = (_sessionState == NIMKitSessionStateSelect);
-        if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
-            model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
-        }
         [models addObject:model];
     }
     NIMSessionMessageOperateResult *result = [self.dataSource addMessageModels:models];
@@ -142,10 +132,6 @@ dispatch_queue_t NTESMessageDataPrepareQueue()
                 continue;
             }
             NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
-            model.shouldShowSelect = (_sessionState == NIMKitSessionStateSelect);
-            if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
-                model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
-            }
             [weakSelf.layout calculateContent:model];
             [models addObject:model];
         }
@@ -179,14 +165,6 @@ dispatch_queue_t NTESMessageDataPrepareQueue()
     return model;
 }
 
-- (void)setSessionState:(NIMKitSessionState)sessionState {
-    if (_sessionState != sessionState) {
-        [self.dataSource refreshMessageModelShowSelect:(sessionState == NIMKitSessionStateSelect)];
-        [self.layout reloadTable];
-        _sessionState = sessionState;
-    }
-}
-
 - (NIMMessageModel *)findMessageModel:(NIMMessage *)message
 {
     if ([message isKindOfClass:[NIMMessage class]]) {
@@ -198,10 +176,6 @@ dispatch_queue_t NTESMessageDataPrepareQueue()
 - (NSInteger)findMessageIndex:(NIMMessage *)message {
     if ([message isKindOfClass:[NIMMessage class]]) {
         NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
-        model.shouldShowSelect = (_sessionState == NIMKitSessionStateSelect);
-        if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
-            model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
-        }
         return [self.dataSource indexAtModelArray:model];
     }
     return -1;
@@ -488,9 +462,6 @@ dispatch_queue_t NTESMessageDataPrepareQueue()
     [[NIMSDK sharedSDK].mediaManager removeDelegate:self];
 }
 
-- (BOOL)messageCanBeSelected:(NIMMessage *)message {
-    return YES;
-}
 
 #pragma mark - NIMSessionLayoutDelegate
 - (void)onRefresh
