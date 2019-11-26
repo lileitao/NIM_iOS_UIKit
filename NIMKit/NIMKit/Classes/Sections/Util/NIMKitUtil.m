@@ -56,10 +56,12 @@
     double OnedayTimeIntervalValue = 24*60*60;  //一天的秒数
 
     result = [NIMKitUtil getPeriodOfTime:hour withMinute:msgDateComponents.minute];
-    if (hour > 12)
-    {
-        hour = hour - 12;
-    }
+    // llt - start
+//    if (hour > 12)
+//    {
+//        hour = hour - 12;
+//    }
+    // llt - end
     
     BOOL isSameMonth = (nowDateComponents.year == msgDateComponents.year) && (nowDateComponents.month == msgDateComponents.month);
     
@@ -71,15 +73,17 @@
     {
         result = showDetail?  [[NSString alloc] initWithFormat:@"昨天%@ %zd:%02d",result,hour,(int)msgDateComponents.minute] : @"昨天";
     }
-    else if(isSameMonth && (nowDateComponents.day == (msgDateComponents.day+2))) //前天
-    {
-        result = showDetail? [[NSString alloc] initWithFormat:@"前天%@ %zd:%02d",result,hour,(int)msgDateComponents.minute] : @"前天";
-    }
-    else if([nowDate timeIntervalSinceDate:msgDate] < 7 * OnedayTimeIntervalValue)//一周内
-    {
-        NSString *weekDay = [NIMKitUtil weekdayStr:msgDateComponents.weekday];
-        result = showDetail? [weekDay stringByAppendingFormat:@"%@ %zd:%02d",result,hour,(int)msgDateComponents.minute] : weekDay;
-    }
+    // llt - start
+//    else if(isSameMonth && (nowDateComponents.day == (msgDateComponents.day+2))) //前天
+//    {
+//        result = showDetail? [[NSString alloc] initWithFormat:@"前天%@ %zd:%02d",result,hour,(int)msgDateComponents.minute] : @"前天";
+//    }
+//    else if([nowDate timeIntervalSinceDate:msgDate] < 7 * OnedayTimeIntervalValue)//一周内
+//    {
+//        NSString *weekDay = [NIMKitUtil weekdayStr:msgDateComponents.weekday];
+//        result = showDetail? [weekDay stringByAppendingFormat:@"%@ %zd:%02d",result,hour,(int)msgDateComponents.minute] : weekDay;
+//    }
+    // llt - end
     else//显示日期
     {
         NSString *day = [NSString stringWithFormat:@"%zd-%zd-%zd", msgDateComponents.year, msgDateComponents.month, msgDateComponents.day];
@@ -110,7 +114,9 @@
     {
         showPeriodOfTime = @"晚上";
     }
-    return showPeriodOfTime;
+    // llt - start
+    return @"";
+    // llt - end
 }
 
 +(NSString*)weekdayStr:(NSInteger)dayOfWeek
