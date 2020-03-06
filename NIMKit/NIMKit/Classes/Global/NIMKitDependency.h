@@ -24,13 +24,13 @@
 @import SDWebImage;
 #endif
 
-#if __has_include(<FLAnimatedImage/FLAnimatedImage.h>)
-#import <FLAnimatedImage/FLAnimatedImage.h>
-#elif __has_include("FLAnimatedImage.h")
-#import "FLAnimatedImage.h"
-#else
-@import FLAnimatedImage;
-#endif
+//#if __has_include(<FLAnimatedImage/FLAnimatedImage.h>)
+//#import <FLAnimatedImage/FLAnimatedImage.h>
+//#elif __has_include("FLAnimatedImage.h")
+//#import "FLAnimatedImage.h"
+//#else
+//@import FLAnimatedImage;
+//#endif
 
 #if __has_include(<SDWebImage/SDWebImage.h>)
 #import <SDWebImage/SDWebImage.h>
@@ -41,13 +41,13 @@
 @import SDWebImage;
 #endif
 
-#if __has_include(<Toast/Toast.h>)
-#import <Toast/Toast.h>
-#elif __has_include("UIView+Toast.h")
-#import "Toast/UIView+Toast.h"
-#else
-@import Toast;
-#endif
+//#if __has_include(<Toast/Toast.h>)
+//#import <Toast/Toast.h>
+//#elif __has_include("UIView+Toast.h")
+//#import "Toast/UIView+Toast.h"
+//#else
+//@import Toast;
+//#endif
 
 
 #if __has_include(<TZImagePickerController/TZImagePickerController.h>)
