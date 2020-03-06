@@ -16,6 +16,7 @@
 #import "NIMKit.h"
 #import "NIMKitDependency.h"
 #import "NIMGlobalMacro.h"
+#import "UIView+GSToast.h"
 
 @interface NIMContactSelectViewController ()<UITableViewDataSource, UITableViewDelegate, NIMContactPickedViewDelegate>{
     NSMutableArray *_selectecContacts;
@@ -256,7 +257,7 @@
     } else if(_selectecContacts.count >= _maxSelectCount) {
         if ([self.config respondsToSelector:@selector(selectedOverFlowTip)]) {
             NSString *tip = [self.config selectedOverFlowTip];
-            [self.view makeToast:tip duration:2.0 position:CSToastPositionCenter];
+            [self.view makeToast:tip duration:2.0 position:GSCSToastPositionCenter];
         }
         cell.accessoryBtn.selected = NO;
     } else {

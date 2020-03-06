@@ -12,6 +12,7 @@
 #import "NIMKitColorButtonCell.h"
 #import "NIMTeamMemberListCell.h"
 #import "NIMKitDependency.h"
+#import "UIView+GSToast.h"
 #import "NIMTeamCardSelectedViewController.h"
 
 #define TableCellReuseId        @"tableCell"
@@ -77,7 +78,7 @@
     if (msg) {
         [self.view makeToast:msg
                     duration:2.0
-                    position:CSToastPositionCenter];
+                    position:GSCSToastPositionCenter];
     }
 }
 

@@ -11,6 +11,7 @@
 #import "NIMCardMemberItem.h"
 #import "NIMTeamMemberCardViewController.h"
 #import "NIMKitDependency.h"
+#import "UIView+GSToast.h"
 #import "NIMKitProgressHUD.h"
 
 #define CollectionCellReuseId @"cell"
@@ -90,8 +91,8 @@ typedef void(^NIMTeamMemberListFetchDataBlock)(BOOL isCompletion);
     [NIMKitProgressHUD show];
     [_dataSource fetchTeamMembersWithOption:option completion:^(NSError * _Nullable error, NSString * _Nullable msg) {
         [NIMKitProgressHUD dismiss];
-        if (error) {
-            [weakSelf.view makeToast:msg duration:2 position:CSToastPositionCenter];
+        if (error) {                                      
+            [weakSelf.view makeToast:msg duration:2 position:GSCSToastPositionCenter];
         } else {
             NSInteger totalCount = weakSelf.dataSource.datas.count;
             if (totalCount == 0) {

@@ -18,6 +18,7 @@
 #import "NIMKitColorButtonCell.h"
 #import "NIMKitSwitcherCell.h"
 #import "NIMKitInfoFetchOption.h"
+#import "UIView+GSToast.h"
 
 @interface NIMTeamMemberCardViewController () <UIActionSheetDelegate>{
     UIAlertView *_kickAlertView;
@@ -316,7 +317,7 @@
     if (msg) {
         [self.view makeToast:msg
                     duration:2.0
-                    position:CSToastPositionCenter];
+                    position:GSCSToastPositionCenter];
     }
 }
 

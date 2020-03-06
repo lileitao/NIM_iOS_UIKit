@@ -7,6 +7,7 @@
 //
 #import "NIMLocationViewController.h"
 #import "NIMKitDependency.h"
+#import "UIView+GSToast.h"
 #import "NIMKitLocationPoint.h"
 #import <AddressBookUI/AddressBookUI.h>
 #import <CoreLocation/CoreLocation.h>
@@ -72,14 +73,14 @@
             if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) {
                 [self.view makeToast:@"请在设置-隐私里允许程序使用地理位置服务"
                             duration:2
-                            position:CSToastPositionCenter];
+                            position:GSCSToastPositionCenter];
             }else{
                 self.mapView.showsUserLocation = YES;
             }
         }else{
             [self.view makeToast:@"请打开地理位置服务"
                         duration:2
-                        position:CSToastPositionCenter];
+                        position:GSCSToastPositionCenter];
         }
     }
     

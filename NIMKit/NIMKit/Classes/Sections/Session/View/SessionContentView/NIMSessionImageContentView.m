@@ -11,10 +11,11 @@
 #import "UIView+NIM.h"
 #import "NIMLoadProgressView.h"
 #import "NIMKitDependency.h"
+#import "GSFLAnimatedImage.h"
 
 @interface NIMSessionImageContentView()
 
-@property (nonatomic,strong,readwrite) FLAnimatedImageView * imageView;
+@property (nonatomic,strong,readwrite) GSFLAnimatedImageView * imageView;
 
 @property (nonatomic,strong) NIMLoadProgressView * progressView;
 
@@ -26,7 +27,7 @@
     self = [super initSessionMessageContentView];
     if (self) {
         self.opaque = YES;
-        _imageView  = [[FLAnimatedImageView alloc] initWithFrame:CGRectZero];
+        _imageView  = [[GSFLAnimatedImageView alloc] initWithFrame:CGRectZero];
         _imageView.backgroundColor = [UIColor whiteColor];
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
         [self addSubview:_imageView];
@@ -49,7 +50,7 @@
         UIImage *image = [UIImage imageWithData:imageData];
         _imageView.image = image;
     } else {
-        FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
+        GSFLAnimatedImage *image = [[GSFLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
         _imageView.animatedImage = image;
         if (!_imageView.isAnimating) {
             [_imageView startAnimating];
