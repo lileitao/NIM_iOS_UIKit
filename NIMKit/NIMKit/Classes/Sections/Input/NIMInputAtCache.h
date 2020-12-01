@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-// 禁止@人
-#define NIMInputAtStartChar  @"@=========="
+#define NIMInputAtStartChar  @"@"
 #define NIMInputAtEndChar    @"\u2004"
 
 @interface NIMInputAtItem : NSObject

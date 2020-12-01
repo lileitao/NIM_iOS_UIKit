@@ -12,14 +12,19 @@
 #import "NIMMessageCellProtocol.h"
 #import "NIMSessionConfigurateProtocol.h"
 #import "NIMInputView.h"
+#import "NIMAdvanceMenu.h"
 
-@interface NIMSessionViewController : UIViewController<NIMSessionInteractorDelegate,NIMInputActionDelegate,NIMMessageCellDelegate,NIMChatManagerDelegate,NIMConversationManagerDelegate>
+@interface NIMSessionViewController : UIViewController<NIMSessionInteractorDelegate,NIMInputActionDelegate,NIMMessageCellDelegate,NIMChatManagerDelegate,NIMConversationManagerDelegate,NIMChatExtendManagerDelegate>
 
 @property (nonatomic, strong)  UITableView *tableView;
 
 @property (nonatomic, strong)  NIMInputView *sessionInputView;
 
+@property (nonatomic,strong)    NIMAdvanceMenu *advanceMenu;
+
 @property (nonatomic, strong)  NIMSession *session;
+
+@property (nonatomic,weak)    id<NIMSessionInteractor> interactor;
 
 /**
  *  当前当初的菜单所关联的消息
@@ -79,7 +84,6 @@
  */
 - (void)refreshMessages;
 
-
 /**
  *  会话页长按消息可以弹出的菜单
  *
@@ -88,6 +92,20 @@
  *  @return 菜单，为UIMenuItem的数组
  */
 - (NSArray *)menusItems:(NIMMessage *)message;
+
+
+/**
+*  当前页面状态
+*/
+- (NIMKitSessionState)sessionState;
+
+/**
+*  切换页面状态
+*
+*  @param state 页面状态
+*
+*/
+- (void)setSessionState:(NIMKitSessionState)state;
 
 /**
  *  会话页详细配置
@@ -181,5 +199,20 @@
  *  @discussion 不会触发 DB 操作，请手动调用 SDK 里 updateMessage:forSession:completion: 接口
  */
 - (void)uiUpdateMessage:(NIMMessage *)message;
+
+/**
+ * UI上添加PIN，SDK中添加了Pin后调用
+ */
+- (void)uiPinMessage:(NIMMessage *)message;
+
+/**
+ * UI上移除PIN，SDK中移除了Pin后调用
+ */
+- (void)uiUnpinMessage:(NIMMessage *)message;
+
+/**
+ * 跳转到对应消息
+ */
+- (void)scrollToMessage:(NIMMessage *)message;
 
 @end

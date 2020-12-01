@@ -12,16 +12,15 @@
 #import "NIMTimestampModel.h"
 #import "NIMGlobalMacro.h"
 #import "NIMKit.h"
+#import "NIMKitInfoFetchOption.h"
 
 @interface NIMSessionMsgDatasource()
 
 @property (nonatomic,strong) id<NIMKitMessageProvider> dataProvider;
 
 @property (nonatomic,strong) NSMutableDictionary *msgIdDict;
-// llt - start
-// 上一次记录时间的model
-@property (nonatomic, strong) NIMMessageModel *timeRecordModel;
-// llt - end
+
+@property (nonatomic,assign) BOOL messageModelShowSelect;
 
 @end
 
@@ -47,12 +46,23 @@
         _showTimeInterval  = showTimestampInterval;
         _items             = [NSMutableArray array];
         _msgIdDict         = [NSMutableDictionary dictionary];
+        _pinUsers          = [NSMutableDictionary dictionary];
     }
     return self;
 }
 
 
 - (void)resetMessages:(void(^)(NSError *error)) handler
+{
+    [self enhancedResetMessages:^(NSError *error, NSArray *models) {
+       if (handler)
+       {
+           handler(error);
+       }
+    }];
+}
+
+- (void)enhancedResetMessages:(void(^)(NSError *error, NSArray *))handler
 {
     self.items              = [NSMutableArray array];
     self.msgIdDict         = [NSMutableDictionary dictionary];
@@ -61,9 +71,10 @@
         __weak typeof(self) wself = self;
         [self.dataProvider pullDown:nil handler:^(NSError *error, NSArray<NIMMessage *> *messages) {
             NIMKit_Dispatch_Async_Main(^{
-                [wself appendMessageModels:[self modelsWithMessages:messages]];
+                NSArray *models = [self modelsWithMessages:messages];
+                [wself appendMessageModels:models];
                 if (handler) {
-                    handler(error);
+                    handler(error, models);
                 }
             });
         }];
@@ -73,9 +84,11 @@
         NSArray<NIMMessage *> *messages = [[[NIMSDK sharedSDK] conversationManager] messagesInSession:_currentSession
                                                                                    message:nil
                                                                                      limit:_messageLimit];
-        [self appendMessageModels:[self modelsWithMessages:messages]];
+        NSArray *models = [self modelsWithMessages:messages];
+
+        [self appendMessageModels:models];
         if (handler) {
-            handler(nil);
+            handler(nil,models);
         }
     }
 }
@@ -201,7 +214,6 @@
         NSArray *messages = [[[NIMSDK sharedSDK] conversationManager] messagesInSession:_currentSession
                                                                                 message:currentOldestMsg.message
                                                                                   limit:self.messageLimit];
-        index = [self insertMessages:messages];
         if (handler) {
             NIMKit_Dispatch_Async_Main(^{
                 handler(index,messages,nil);
@@ -229,6 +241,21 @@
                                                             });
                                                         }
                                                     }];
+}
+
+- (void)loadMessagePins:(void (^)(NSError *))handler
+{
+    [NIMSDK.sharedSDK.chatExtendManager loadMessagePinsForSession:_currentSession completion:^(NSError * _Nonnull error, NSArray<NIMMessagePinItem *> * _Nullable items) {
+        [items enumerateObjectsUsingBlock:^(NIMMessagePinItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            NSString *pinUserID = obj.accountID ?: NIMSDK.sharedSDK.loginManager.currentAccount;
+            NIMKitInfoFetchOption *option = [[NIMKitInfoFetchOption alloc] init];
+            option.session = _currentSession;
+            self.pinUsers[obj.messageId] = [NIMKit.sharedKit infoByUser:pinUserID option:option].showName;
+        }];
+        if (handler) {
+            handler(nil);
+        }
+    }];
 }
 
 - (NSArray*)deleteMessageModel:(NIMMessageModel *)msgModel
@@ -294,9 +321,74 @@
     }
 }
 
+- (void)refreshMessageModelShowSelect:(BOOL)isShow {
+    _messageModelShowSelect = isShow;
+
+    for (id item in self.items)
+    {
+        if ([item isKindOfClass:[NIMMessageModel class]])
+        {
+            NIMMessageModel *model = (NIMMessageModel *)item;
+            model.shouldShowSelect = isShow;
+            model.selected = NO;
+            if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
+                model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
+            }
+            if ([_sessionConfig respondsToSelector:@selector(needShowReplyContent)]) {
+                model.enableRepliedContent = [_sessionConfig needShowReplyContent];
+            }
+            if ([_sessionConfig respondsToSelector:@selector(needShowQuickComments)]) {
+                model.enableQuickComments = [_sessionConfig needShowQuickComments];
+            }
+        }
+    }
+}
+
+- (void)willDisplayMessageModel:(NIMMessageModel *)model
+{
+    if ([_sessionConfig respondsToSelector:@selector(shouldShowPinContent)]) {
+        model.shouldShowPinContent = [_sessionConfig shouldShowPinContent];
+    }
+    model.pinUserName = self.pinUsers[model.message.messageId];
+}
+
+- (void)addPinForMessage:(NIMMessage *)message callback:(void (^)(NSError *))handler
+{
+    if (!message) {
+        !handler ?: handler(nil);
+        return;
+    }
+    NIMMessagePinItem *item = [NIMSDK.sharedSDK.chatExtendManager pinItemForMessage:message];
+    NSString *accountID = item.accountID ?: NIMSDK.sharedSDK.loginManager.currentAccount;
+    NIMKitInfoFetchOption *option = [[NIMKitInfoFetchOption alloc] init];
+    option.session = message.session;
+    NSString *pinUserName = [NIMKit.sharedKit infoByUser:accountID option:option].showName;
+    self.pinUsers[message.messageId] = pinUserName;
+    !handler ?: handler(nil);
+}
+
+- (void)removePinForMessage:(NIMMessage *)message callback:(void (^)(NSError *))handler
+{
+    if (message) {
+        self.pinUsers[message.messageId] = nil;
+    }
+    !handler ?: handler(nil);
+}
+
 #pragma mark - private methods
 - (void)insertMessage:(NIMMessage *)message{
     NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
+    model.shouldShowSelect = _messageModelShowSelect;
+    if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
+        model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
+    }
+    if ([_sessionConfig respondsToSelector:@selector(enableRepliedContent)]) {
+        model.enableRepliedContent = [_sessionConfig needShowReplyContent];
+    }
+    if ([_sessionConfig respondsToSelector:@selector(shouldShowPinContent)]) {
+        model.shouldShowPinContent = [_sessionConfig shouldShowPinContent];
+    }
+    model.pinUserName = self.pinUsers[model.message.messageId];
     if ([self modelIsExist:model]) {
         return;
     }
@@ -320,11 +412,6 @@
 
 
 - (NSArray *)insertMessageModel:(NIMMessageModel *)model index:(NSInteger)index{
-    // llt - start
-    if (model.message.messageType == NIMMessageTypeNotification) {
-        return nil;
-    }
-    // llt - end
     NSMutableArray *inserts = [[NSMutableArray alloc] init];
     if (![self.dataProvider respondsToSelector:@selector(needTimetag)] || self.dataProvider.needTimetag)
     {
@@ -337,9 +424,6 @@
         }
     }
     [self.items insertObject:model atIndex:index];
-    // llt - start
-    self.timeRecordModel = model;
-    // llt - end
     [self.msgIdDict setObject:model forKey:model.message.messageId];
     [inserts addObject:@(index)];
     return inserts;
@@ -365,6 +449,21 @@
     NSMutableArray *array = [[NSMutableArray alloc] init];
     for (NIMMessage *message in messages) {
         NIMMessageModel *model = [[NIMMessageModel alloc] initWithMessage:message];
+        model.shouldShowSelect = _messageModelShowSelect;
+        if ([_sessionConfig respondsToSelector:@selector(disableSelectedForMessage:)]) {
+            model.disableSelected = [_sessionConfig disableSelectedForMessage:model.message];;
+        }
+        if ([_sessionConfig respondsToSelector:@selector(needShowReplyContent)]) {
+            model.enableRepliedContent = [_sessionConfig needShowReplyContent];
+        }
+
+        if ([_sessionConfig respondsToSelector:@selector(needShowQuickComments)]) {
+            model.enableQuickComments = [_sessionConfig needShowQuickComments];
+        }
+        if ([_sessionConfig respondsToSelector:@selector(shouldShowPinContent)]) {
+            model.shouldShowPinContent = [_sessionConfig shouldShowPinContent];
+        }
+        model.pinUserName = self.pinUsers[model.message.messageId];
         [array addObject:model];
     }
     return array;
@@ -424,10 +523,7 @@
 
 - (NSTimeInterval)lastTimeInterval
 {
-    // llt -
-//    NIMMessageModel *model = self.items.lastObject;
-    NIMMessageModel *model = self.timeRecordModel;
-     // llt - end
+    NIMMessageModel *model = self.items.lastObject;
     return model.messageTime;
 }
 

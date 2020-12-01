@@ -64,6 +64,27 @@ FOUNDATION_EXPORT const unsigned char NIMKitVersionString[];
  */
 #import "NIMKitIndependentModeExtraInfo.h"
 
+/**
+ *  标记消息页
+ */
+#import "NIMMessagePinListViewController.h"
+
+/**
+ * 收藏页
+ */
+#import "NIMCollectMessageListViewController.h"
+
+/**
+ * 聊天常用UI方法
+ */
+#import "NIMChatUIManagerProtocol.h"
+
+/**
+ * 快捷评论
+ */
+#import "NIMCollectionViewLeftAlignedLayout.h"
+#import "NIMKitQuickCommentUtil.h"
+
 @interface NIMKit : NSObject
 
 + (instancetype)sharedKit;
@@ -95,17 +116,35 @@ FOUNDATION_EXPORT const unsigned char NIMKitVersionString[];
  */
 @property (nonatomic,strong)  NIMKitIndependentModeExtraInfo *independentModeExtraInfo;
 
+/**
+ * 聊天模块常用UI方法
+ */
+@property (nonatomic, readonly) id<NIMChatUIManager> chatUIManager;
 
 /**
- *  NIMKit图片资源所在的 bundle 名称。
- */
-@property (nonatomic,copy)      NSString *resourceBundleName;
+*  NIMKit图片资源所在的 bundle 名称。
+*/
+@property (nonatomic, copy) NSBundle *resourceBundle;
 
 /**
  *  NIMKit表情资源所在的 bundle 名称。
  */
-@property (nonatomic,copy)      NSString *emoticonBundleName;
+@property (nonatomic, copy) NSBundle *emoticonBundle;
 
+/**
+ *  NIMKit语言所在Bundle, 启动的时候根据系统语言会选择对应的语言包，后面用户可替换
+ */
+@property (nonatomic, strong) NSBundle * languageBundle;
+
+/**
+ *  NIMKit语言所在Table，默认 language
+ */
+@property (nonatomic, copy) NSString * languageTable;
+
+/**
+ *  NIMKit语言所在Table，默认 获取系统语言
+ */
+@property (nonatomic, copy) NSString * defaultLanguage;
 
 /**
  *  用户信息变更通知接口
@@ -119,7 +158,7 @@ FOUNDATION_EXPORT const unsigned char NIMKitVersionString[];
  *
  *  @param teamIds 群 id 集合
  */
-- (void)notifyTeamInfoChanged:(NSArray *)teamIds;
+- (void)notifyTeamInfoChanged:(NSString *)teamId type:(NIMKitTeamType)type;
 
 
 /**
@@ -127,22 +166,7 @@ FOUNDATION_EXPORT const unsigned char NIMKitVersionString[];
  *
  *  @param teamIds 群id
  */
-- (void)notifyTeamMemebersChanged:(NSArray *)teamIds;
-
-/**
- *  超大群信息变更通知接口
- *
- *  @param teamIds 群 id 集合
- */
-- (void)notifySuperTeamInfoChanged:(NSArray *)teamIds;
-
-
-/**
- *  超大群群成员变更通知接口
- *
- *  @param teamIds 群id
- */
-- (void)notifySuperTeamMemebersChanged:(NSArray *)teamIds;
+- (void)notifyTeamMemebersChanged:(NSString *)teamId type:(NIMKitTeamType)type;
 
 /**
  *  返回用户信息
@@ -161,6 +185,13 @@ FOUNDATION_EXPORT const unsigned char NIMKitVersionString[];
  */
 - (NIMKitInfo *)infoBySuperTeam:(NSString *)teamId
                          option:(NIMKitInfoFetchOption *)option;
+
+/**
+ *  @param message 被回复的消息
+ *
+ *  @return 格式化的内容
+ */
+- (NSString *)replyedContentWithMessage:(NIMMessage *)message;
 
 @end
 

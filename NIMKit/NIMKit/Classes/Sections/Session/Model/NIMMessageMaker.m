@@ -18,9 +18,7 @@
 {
     NIMMessage *textMessage = [[NIMMessage alloc] init];
     textMessage.text        = text;
-    NIMMessageSetting *setting = [[NIMMessageSetting alloc] init];
-    setting.teamReceiptEnabled = YES;
-    textMessage.setting = setting;
+    [self setupMessage:textMessage];
     return textMessage;
 }
 
@@ -29,10 +27,8 @@
     NIMAudioObject *audioObject = [[NIMAudioObject alloc] initWithSourcePath:filePath scene:NIMNOSSceneTypeMessage];
     NIMMessage *message = [[NIMMessage alloc] init];
     message.messageObject = audioObject;
-    message.text = @"发来了一段语音";
-    NIMMessageSetting *setting = [[NIMMessageSetting alloc] init];
-    setting.scene = NIMNOSSceneTypeMessage;
-    message.setting = setting;
+    message.text = @"发来了一段语音".nim_localized;
+    [self setupMessage:message];
     return message;
 }
 
@@ -42,13 +38,11 @@
     [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
     NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
     NIMVideoObject *videoObject = [[NIMVideoObject alloc] initWithSourcePath:filePath scene:NIMNOSSceneTypeMessage];
-    videoObject.displayName = [NSString stringWithFormat:@"视频发送于%@",dateString];
+    videoObject.displayName = [NSString stringWithFormat:@"视频发送于%@".nim_localized,dateString];
     NIMMessage *message = [[NIMMessage alloc] init];
     message.messageObject = videoObject;
-    message.apnsContent = @"发来了一段视频";
-    NIMMessageSetting *setting = [[NIMMessageSetting alloc] init];
-    setting.scene = NIMNOSSceneTypeMessage;
-    message.setting = setting;
+    message.apnsContent = @"发来了一段视频".nim_localized;
+    [self setupMessage:message];
     return message;
 }
 
@@ -78,13 +72,11 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
     NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
-    imageObject.displayName = [NSString stringWithFormat:@"图片发送于%@",dateString];
+    imageObject.displayName = [NSString stringWithFormat:@"图片发送于%@".nim_localized,dateString];
     NIMMessage *message     = [[NIMMessage alloc] init];
     message.messageObject   = imageObject;
-    message.apnsContent = @"发来了一张图片";
-    NIMMessageSetting *setting = [[NIMMessageSetting alloc] init];
-    setting.scene = NIMNOSSceneTypeMessage;
-    message.setting = setting;
+    message.apnsContent = @"发来了一张图片".nim_localized;
+    [self setupMessage:message];
     return message;
 }
 
@@ -95,9 +87,46 @@
                                                                               title:locationPoint.title];
     NIMMessage *message               = [[NIMMessage alloc] init];
     message.messageObject             = locationObject;
-    message.apnsContent = @"发来了一条位置信息";
+    message.apnsContent = @"发来了一条位置信息".nim_localized;
+    [self setupMessage:message];
     return message;
 }
 
++ (void)setupMessage:(NIMMessage *)message
+{
+    message.apnsPayload = @{
+        @"apns-collapse-id": message.messageId,
+    };
+    
+    NIMMessageSetting *setting = [[NIMMessageSetting alloc] init];
+    setting.scene = NIMNOSSceneTypeMessage;
+    message.setting = setting;
+    message.env = [[NSUserDefaults standardUserDefaults] objectForKey:@"nim_test_msg_env"];
+}
+
+
+@end
+
+
+@implementation NIMCommentMaker
+
++ (NIMQuickComment *)commentWithType:(int64_t)type
+                             content:(NSString *)content
+                                 ext:(NSString *)ext
+{
+    NIMQuickComment *comment = [[NIMQuickComment alloc] init];
+    comment.ext = ext;
+    NIMQuickCommentSetting *setting = [[NIMQuickCommentSetting alloc] init];
+    setting.needPush = YES;
+    setting.needBadge = YES;
+    setting.pushTitle = @"你收到了一条快捷评论";
+    setting.pushContent = content;
+    setting.pushPayload = @{
+        @"key" : @"value"
+    };
+    comment.setting = setting;
+    comment.replyType = type;
+    return comment;
+}
 
 @end

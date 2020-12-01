@@ -27,6 +27,15 @@
  */
 - (NSArray<NIMMediaItem *> *)mediaItems;
 
+/**
+ *  菜单选项
+ */
+- (NSArray<NIMMediaItem *> *)menuItemsWithMessage:(NIMMessage *)message;
+
+/**
+ *  菜单选项
+ */
+- (NSArray*)emotionItems;
 
 /**
  *  禁用贴图表情
@@ -88,6 +97,15 @@
 - (BOOL)shouldHandleReceiptForMessage:(NIMMessage *)message;
 
 /**
+*  该条消息是否不允许选中
+*
+*  @param message 消息
+*
+*  @return 是否允许选中
+*/
+- (BOOL)disableSelectedForMessage:(NIMMessage *)message;
+
+/**
  *  是否禁用进入会话自动标记会话已读，如果禁用，请自行调用 SDK markAllMessagesReadInSession 接口维护未读数。
  *
  */
@@ -118,5 +136,39 @@
  *  会话聊天背景更换接口
  */
 - (UIImage *)sessionBackgroundImage;
+
+/**
+ *  @return 是否显示回复内容
+ */
+- (BOOL)needShowReplyContent;
+
+/**
+ *  @return 是否显示快捷回复
+ */
+- (BOOL)needShowQuickComments;
+
+/**
+ *  @return 是否显示Pin
+ */
+- (BOOL)shouldShowPinContent;
+
+/**
+ *  @return 返回thread 父消息
+ */
+- (NIMMessage *)threadMessage;
+
+/**
+ *  设置 thread消息
+ */
+- (void)setThreadMessage:(NIMMessage *)message;
+/**
+ *  清空 thread消息
+ */
+- (void)cleanThreadMessage;
+
+/**
+ *  @return 发完一条消息后是否清空thead 消息
+ */
+- (BOOL)clearThreadMessageAfterSent;
 
 @end

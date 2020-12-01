@@ -103,12 +103,19 @@ typedef NS_ENUM(NSInteger,NIMKitAvatarType) {
 
 - (NSArray *)defaultMediaItems;
 
+- (NSArray *)defaultMenuItemsWithMessage:(NIMMessage *)message;
+
 - (CGFloat)maxNotificationTipPadding;
 
 
 /*根据消息取到配置*/
 
 - (NIMKitSetting *)setting:(NIMMessage *)message;
+
+
+/*被回复消息取到配置*/
+
+- (NIMKitSetting *)repliedSetting:(NIMMessage *)message;
 
 @end
 
@@ -156,6 +163,11 @@ typedef NS_ENUM(NSInteger,NIMKitAvatarType) {
 @property (nonatomic, strong) NIMKitSetting *tipSetting;
 
 /**
+ *  Rtc话单类型消息设置
+ */
+@property (nonatomic, strong) NIMKitSetting *rtcCallRecordSetting;
+
+/**
  *  无法识别类型消息设置
  */
 @property (nonatomic, strong) NIMKitSetting *unsupportSetting;
@@ -179,6 +191,11 @@ typedef NS_ENUM(NSInteger,NIMKitAvatarType) {
  *  网络电话类型类型通知消息设置
  */
 @property (nonatomic, strong) NIMKitSetting *netcallNotificationSetting;
+
+/**
+ *  被回复消息的设置
+ */
+@property (nonatomic, strong) NIMKitSetting *repliedSetting;
 
 
 @end

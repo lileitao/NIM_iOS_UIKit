@@ -29,7 +29,7 @@
 //#elif __has_include("FLAnimatedImage.h")
 //#import "FLAnimatedImage.h"
 //#else
-//@import FLAnimatedImage;
+//#import "GSFLAnimatedImage.h"
 //#endif
 #import "GSFLAnimatedImage.h"
 
@@ -50,7 +50,6 @@
 //@import Toast;
 //#endif
 #import "UIView+GSToast.h"
-
 
 #if __has_include(<TZImagePickerController/TZImagePickerController.h>)
 #import <TZImagePickerController/TZImagePickerController.h>
